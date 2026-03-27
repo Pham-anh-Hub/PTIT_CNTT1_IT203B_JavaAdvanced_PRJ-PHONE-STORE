@@ -1,4 +1,4 @@
-create utils prj_phone_store_java2;
+create database prj_phone_store_java2;
 use prj_phone_store_java2;
 
 -- users, categories, products, orders, order_details.
@@ -21,7 +21,8 @@ create table users(
 create table categories(
 	cate_id varchar(50) primary key,
     cate_name varchar(200) not null unique,
-    description varchar(255)
+    description varchar(255),
+    status boolean
 );
 
 -- products
@@ -74,10 +75,14 @@ INSERT INTO users VALUES
 
 
 INSERT INTO categories VALUES
-('C001', 'iPhone', 'Apple smartphones'),
-('C002', 'Samsung', 'Samsung Galaxy series'),
-('C003', 'Xiaomi', 'Xiaomi smartphones'),
-('C004', 'Oppo', 'Oppo smartphones');
+('C001', 'iPhone', 'Apple smartphones', true),
+('C002', 'Samsung', 'Samsung Galaxy series', true),
+('C003', 'Xiaomi', 'Xiaomi smartphones', true),
+('C004', 'Oppo', 'Oppo smartphones', true);
+
+select * from categories;
+
+update categories set cate_name = 'Iphone 17 Pro max', description = 'Apple smartphone' where cate_id = 'C001';
 
 
 INSERT INTO products VALUES

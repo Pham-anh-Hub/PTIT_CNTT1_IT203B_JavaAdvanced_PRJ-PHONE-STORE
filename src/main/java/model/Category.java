@@ -43,7 +43,7 @@ public class Category {
     }
 
     public boolean getStatus() {
-        return status;
+        return this.status;
     }
 
     public void setStatus(boolean status) {
@@ -52,7 +52,7 @@ public class Category {
 
     public void displayInforCate (){
         if(status){
-            System.out.printf("| %s | %s | %s |\n", CenterFormat.center(cate_id, 12), CenterFormat.center(cate_name, 20), CenterFormat.center(description, 60));
+            System.out.printf("| %s | %s | %s |\n", CenterFormat.center(cate_id, 12), CenterFormat.center(cate_name, 30), CenterFormat.center(description, 57));
         }
     }
 }

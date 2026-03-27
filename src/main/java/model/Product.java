@@ -1,7 +1,11 @@
 package model;
 
+import dao.CategoryDAOImpl;
+import utils.CenterFormat;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class Product {
     private String product_id;
@@ -15,6 +19,7 @@ public class Product {
     private LocalDateTime created_at;
     private LocalDateTime updated_at;
     public String category_id;
+    private boolean isActive;
 
 
     public Product() {
@@ -32,6 +37,7 @@ public class Product {
         this.created_at = LocalDateTime.now();
         this.updated_at = LocalDateTime.now();
         this.category_id = category_id;
+        this.isActive = true;
     }
 
 
@@ -116,18 +122,41 @@ public class Product {
         this.updated_at = updated_at;
     }
 
+    public String getCategory_id() {
+        return category_id;
+    }
+
+    public void setCategory_id(String category_id) {
+        this.category_id = category_id;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
+    }
+
     public void displayInfoProduct() {
-        System.out.printf("| %-8s | %-20s | %-10s | %-8s | %-8s | %-12s | %-8s | %-19s | %-19s |\n",
-                product_id,
-                product_name,
-                brand,
-                color,
-                storage + "GB",
-                String.format("%,.0f VND", price),
-                stock,
-                (created_at != null ? created_at.toString() : "N/A"),
-                (updated_at != null ? updated_at.toString() : "N/A")
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        System.out.printf("| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |\n",
+                CenterFormat.center(product_id, 12),
+                CenterFormat.center(product_name, 20),
+                CenterFormat.center(new CategoryDAOImpl().getCategoryById(category_id).getCate_name(), 10),
+                CenterFormat.center(brand, 10),
+                CenterFormat.center(color, 8),
+                CenterFormat.center(storage + " GB", 10),
+                CenterFormat.center(String.format("%,.0f VND", price), 14),
+                CenterFormat.center(String.valueOf(stock), 7),
+                CenterFormat.center(created_at != null ? dtf.format(created_at) : "_", 19),
+                CenterFormat.center(updated_at != null ? dtf.format(updated_at) : "_", 19)
         );
+
+//        // In mô tả
+//        String desc = (description != null && !description.isBlank()) ? description : "Không có mô tả";
+//        System.out.printf("|  %-156s|\n", " Mô tả: " + desc);
+//        System.out.println("|" + "─".repeat(158) + "|");
     }
 
 
