@@ -9,26 +9,25 @@ import model.Product;
 import service.serviceInterface.IProductService;
 import utils.CenterFormat;
 
+import javax.swing.plaf.PanelUI;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Scanner;
 
 public class ProductServiceImpl implements IProductService {
     public static Scanner sc = new Scanner(System.in);
-    @Override
-    public void displayProductList() {
-        List<Product> products = new ProductDAOImpl().getProducts();
 
+    public static void displayHeader(List<Product> products, String header){
         System.out.println("┏" + "━".repeat(158) + "┓");
-        System.out.printf("| %s |\n", CenterFormat.center("DANH SÁCH SẢN PHẨM", 156));
-        System.out.println("|" + "━".repeat(158) + "|");  // bỏ dấu ┓┗ ở giữa
+        System.out.printf("| %s |\n", CenterFormat.center(header.toUpperCase(), 156));
+        System.out.println("|" + "━".repeat(158) + "|");
 
         if (products.isEmpty()) {
             System.out.printf("| %s |\n", CenterFormat.center("DANH SÁCH SẢN PHẨM TRỐNG", 156));
             System.out.println("┗" + "━".repeat(158) + "┛");
             return; // thoát sớm, không in tiếp
         }
-
         System.out.printf("| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |\n",
                 CenterFormat.center("Mã sản phẩm", 12),
                 CenterFormat.center("Tên sản phẩm", 20),
@@ -42,12 +41,51 @@ public class ProductServiceImpl implements IProductService {
                 CenterFormat.center("Thời gian sửa", 19)
         );
         System.out.println("|" + "━".repeat(158) + "|");
+    }
 
-        for (Product product : products) {
-            product.displayInfoProduct();
-        }
 
-        System.out.println("┗" + "━".repeat(158) + "┛");
+    @Override
+    public void displayProductList() {
+        int limitRecord = 6;
+        int currentPage = 1;
+        int totalProducts = new ProductDAOImpl().getProducts().size();
+        int pages = (int) Math.ceil((double) totalProducts / limitRecord);
+        int pageChoice = 1;
+
+        do {
+            List<Product> products = new ProductDAOImpl().getProductsForPagination(limitRecord, currentPage);
+            displayHeader(products, "danh sách sản phẩm");
+
+            for (Product product : products) {
+                product.displayInfoProduct();
+            }
+
+            System.out.print("┗" + "━".repeat(158) + "┛\n");
+
+            StringBuilder pagination = new StringBuilder();
+
+            for (int i = 1; i <= pages; i++) {
+                if (currentPage == i){
+                    pagination.append("\u001B[31m" + " [" + i + "] " + "\u001B[0m");
+                }else{
+                    pagination.append(" [" + i + "]");
+                }
+            }
+            System.out.println(CenterFormat.center(String.valueOf(pagination), 160));
+
+            System.out.print("\nXem thêm: ");
+            try {
+                pageChoice = Integer.parseInt(sc.nextLine().trim());
+            } catch (NumberFormatException e) {
+                pageChoice = 0;
+            }
+
+            // Validate trang hợp lệ
+            if (pageChoice < 1 || pageChoice > pages) break;
+            currentPage = pageChoice;
+
+        }while(pageChoice >= 1 && pageChoice <= pages);
+
     }
 
     @Override
@@ -206,6 +244,9 @@ public class ProductServiceImpl implements IProductService {
             System.out.println("Sản phẩm không tồn tại hoặc đã bị xóa.");
             return;
         }
+        displayHeader(new ProductDAOImpl().getProducts(), "sản phẩm cần cập nhật");
+        target.displayInfoProduct();
+        System.out.print("┗" + "━".repeat(158) + "┛\n");
 
         int choice = -1;
         do {
@@ -306,6 +347,7 @@ public class ProductServiceImpl implements IProductService {
                     break;
 
                 case 0:
+                    target.setUpdated_at(LocalDateTime.now());
                     if (new ProductDAOImpl().updateProductInfo(target)) {
                         System.out.println("Cập nhật thành công!");
                     } else {
@@ -358,30 +400,7 @@ public class ProductServiceImpl implements IProductService {
         }
 
         List<Product> results = new ProductDAOImpl().searchProductWithName(keyword);
-
-        System.out.println("┏" + "━".repeat(158) + "┓");
-        System.out.printf("| %s |\n", CenterFormat.center("KẾT QUẢ TÌM KIẾM: \"" + keyword + "\"", 156));
-        System.out.println("|" + "━".repeat(158) + "|");
-
-        if (results.isEmpty()) {
-            System.out.printf("| %s |\n", CenterFormat.center("Không tìm thấy sản phẩm phù hợp", 156));
-            System.out.println("┗" + "━".repeat(158) + "┛");
-            return;
-        }
-
-        System.out.printf("| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |\n",
-                CenterFormat.center("Mã SP", 12),
-                CenterFormat.center("Tên sản phẩm", 20),
-                CenterFormat.center("Danh mục", 10),
-                CenterFormat.center("Hãng", 10),
-                CenterFormat.center("Màu", 8),
-                CenterFormat.center("Dung lượng", 10),
-                CenterFormat.center("Giá tiền", 14),
-                CenterFormat.center("Tồn kho", 5),
-                CenterFormat.center("Thời gian tạo", 19),
-                CenterFormat.center("Thời gian sửa", 19)
-        );
-        System.out.println("|" + "━".repeat(158) + "|");
+        displayHeader(results, "KẾT QUẢ TÌM KIẾM: \"" + keyword + "\"");
 
         for (Product p : results) {
             p.displayInfoProduct();

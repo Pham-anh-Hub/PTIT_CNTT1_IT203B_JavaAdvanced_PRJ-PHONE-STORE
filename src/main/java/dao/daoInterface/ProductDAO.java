@@ -28,4 +28,7 @@ public interface ProductDAO {
 
 //    Tìm kiếm thông tin sản phẩm theo tên (tìm kiếm tương đối)
     public List<Product> searchProductWithName(String productName);
+
+//    Sắp xếp sản phẩm theo giá tiền tăng/giảm dần
+    public List<Product> sortProductsByPrice(String sortChoice);
 }

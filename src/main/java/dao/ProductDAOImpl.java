@@ -5,10 +5,29 @@ import model.Product;
 import utils.MyDatabase;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ProductDAOImpl implements ProductDAO {
+    public Product setProduct(ResultSet rs) throws SQLException {
+        Product product = new Product();
+        product.setProduct_id(rs.getString("product_id"));
+        product.setProduct_name(rs.getString("product_name"));
+        product.setBrand(rs.getString("brand"));
+        product.setColor(rs.getString("color"));
+        product.setStorage(rs.getInt("storage"));
+        product.setStock(rs.getInt("stock"));
+        product.setPrice(rs.getBigDecimal("price"));
+        product.setDescription(rs.getString("description"));
+        product.setCreated_at(rs.getTimestamp("created_at") == null ? null : rs.getTimestamp("created_at").toLocalDateTime());
+        product.setUpdated_at(rs.getTimestamp("updated_at") == null ? null : rs.getTimestamp("updated_at").toLocalDateTime());
+        product.setCategory_id(rs.getString("cate_id"));
+        product.setActive(rs.getBoolean("is_active"));
+
+        return product;
+    }
+
     @Override
     public List<Product> getProducts() {
        List<Product> products = new ArrayList<>();
@@ -38,6 +57,26 @@ public class ProductDAOImpl implements ProductDAO {
     }
 
 
+
+    public List<Product> getProductsForPagination(int limitRecord, int currPage ) {
+        List<Product> products = new ArrayList<>();
+        try(Connection conn = MyDatabase.getInstance().getConnection();
+            PreparedStatement pstmt = conn.prepareStatement("select * from products where cate_id in (select cate_id from categories where status = true) && is_active = true order by product_id asc limit ? offset ?")) {
+
+            pstmt.setInt(1, limitRecord);
+            pstmt.setInt(2, (currPage * limitRecord - limitRecord));
+
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()){
+                Product product = setProduct(rs);
+                products.add(product);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return products;
+    }
+
     public List<Product> getAllProducts() {
         List<Product> productsResult = new ArrayList<>();
         try(Connection conn = MyDatabase.getInstance().getConnection();
@@ -45,18 +84,7 @@ public class ProductDAOImpl implements ProductDAO {
 
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()){
-                Product product = new Product();
-                product.setProduct_id(rs.getString("product_id"));
-                product.setProduct_name(rs.getString("product_name"));
-                product.setBrand(rs.getString("brand"));
-                product.setColor(rs.getString("color"));
-                product.setStorage(rs.getInt("storage"));
-                product.setStock(rs.getInt("stock"));
-                product.setPrice(rs.getBigDecimal("price"));
-                product.setDescription(rs.getString("description"));
-                product.setCreated_at(rs.getTimestamp("created_at").toLocalDateTime());
-                product.setUpdated_at(null);
-                product.setCategory_id(rs.getString("cate_id"));
+                Product product = setProduct(rs);
                 productsResult.add(product);
             }
         } catch (SQLException e) {
@@ -76,18 +104,7 @@ public class ProductDAOImpl implements ProductDAO {
 
             ResultSet rs = pstmt.executeQuery();
             if(rs.next()){
-                targetProduct = new Product();
-                targetProduct.setProduct_id(rs.getString("product_id"));
-                targetProduct.setProduct_name(rs.getString("product_name"));
-                targetProduct.setBrand(rs.getString("brand"));
-                targetProduct.setColor(rs.getString("color"));
-                targetProduct.setStorage(rs.getInt("storage"));
-                targetProduct.setStock(rs.getInt("stock"));
-                targetProduct.setPrice(rs.getBigDecimal("price"));
-                targetProduct.setDescription(rs.getString("description"));
-                targetProduct.setCreated_at(rs.getTimestamp("created_at").toLocalDateTime());
-                targetProduct.setUpdated_at(null);
-                targetProduct.setCategory_id(rs.getString("cate_id"));
+                targetProduct = setProduct(rs);
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -132,7 +149,6 @@ public class ProductDAOImpl implements ProductDAO {
         if(!(new CategoryDAOImpl().getCategoryById(updateProduct.category_id).getStatus())){
             return false;
         }
-        //-------------------
 
         try(Connection conn = MyDatabase.getInstance().getConnection();
         PreparedStatement pstmt = conn.prepareStatement(
@@ -146,7 +162,6 @@ public class ProductDAOImpl implements ProductDAO {
             pstmt.setInt(6, updateProduct.getStock()); // stock
             pstmt.setString(7, updateProduct.getDescription()); // descipt
             pstmt.setString(8, updateProduct.getCategory_id()); // cate_id
-
             pstmt.setString(9, updateProduct.getProduct_id());
 
             int statusUpdate = pstmt.executeUpdate();
@@ -181,19 +196,7 @@ public class ProductDAOImpl implements ProductDAO {
 
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()){
-                Product product = new Product();
-                product.setProduct_id(rs.getString("product_id"));
-                product.setProduct_name(rs.getString("product_name"));
-                product.setBrand(rs.getString("brand"));
-                product.setColor(rs.getString("color"));
-                product.setStorage(rs.getInt("storage"));
-                product.setStock(rs.getInt("stock"));
-                product.setPrice(rs.getBigDecimal("price"));
-                product.setDescription(rs.getString("description"));
-                product.setCreated_at(rs.getTimestamp("created_at") == null ? null : rs.getTimestamp("created_at").toLocalDateTime());
-                product.setUpdated_at(rs.getTimestamp("updated_at") == null ? null : rs.getTimestamp("updated_at").toLocalDateTime());
-                product.setCategory_id(rs.getString("cate_id"));
-                product.setActive(rs.getBoolean("is_active"));
+                Product product = setProduct(rs);
                 resultSearch.add(product);
             }
 
@@ -201,5 +204,25 @@ public class ProductDAOImpl implements ProductDAO {
             throw new RuntimeException(e);
         }
         return resultSearch;
+    }
+
+    @Override
+    public List<Product> sortProductsByPrice(String sortChoice) {
+        List<Product> sortResult = new ArrayList<>();
+        try(Connection conn = MyDatabase.getInstance().getConnection();
+        PreparedStatement pstmt = conn.prepareStatement("select * from products where cate_id in (select cate_id from categories where status = true) && is_active = true order by product_id ?")){
+
+            pstmt.setString(1, sortChoice);
+
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()){
+                Product product = setProduct(rs);
+                sortResult.add(product);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return sortResult;
     }
 }

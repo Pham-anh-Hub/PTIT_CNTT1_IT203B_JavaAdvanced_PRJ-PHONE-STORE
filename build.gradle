@@ -15,6 +15,8 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     // Source: https://mvnrepository.com/artifact/com.mysql/mysql-connector-j
     implementation("com.mysql:mysql-connector-j:9.6.0")
+    // Source: https://mvnrepository.com/artifact/at.favre.lib/bcrypt
+    implementation("org.mindrot:jbcrypt:0.4")
 }
 
 test {
