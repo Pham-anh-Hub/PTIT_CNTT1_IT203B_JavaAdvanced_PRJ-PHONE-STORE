@@ -4,18 +4,19 @@ import service.CategoryServiceImpl;
 
 import java.util.Scanner;
 
-public class CategoryPresentation {
+public class CategoryManagement {
     public static Scanner sc = new Scanner(System.in);
-    public static void categoryManagement(){
+    public void categoryManagement(){
         int c_choice = -1;
         do {
-            System.out.println("\n\n\n┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━ CATEGORY MANAGEMENT ━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n" +
+            System.out.println("-".repeat(123));
+            System.out.println("\n\n\n┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━ QUẢN LÝ DANH MỤC ━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n" +
                     "|                                        |                                    |                                        |\n" +
-                    "|        1. Display list category        |    2. Add new Category             |     3. Update category information     |\n" +
+                    "|        1. Xem danh sách danh mục       |    2. Thêm mới danh mục            |     3. Cập nhật thông tin danh mục     |\n" +
                     "|                                        |                                    |                                        |\n" +
                     "|━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┻━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┻━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━|\n" +
                     "|                                                          |                                                           |\n" +
-                    "|                4. Delete category                        |                   5. Back                                 |\n" +
+                    "|                4. Xóa danh mục                           |                   5. Quay lại                             |\n" +
                     "|                                                          |                                                           |\n" +
                     "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┻━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
             System.out.print("Lựa chọn của bạn:  ");

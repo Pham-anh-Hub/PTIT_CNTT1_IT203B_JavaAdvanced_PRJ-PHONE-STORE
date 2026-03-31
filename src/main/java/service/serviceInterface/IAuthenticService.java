@@ -10,4 +10,7 @@ public interface IAuthenticService {
     // Đăng xuất
     public void logout();
 
+    // cập nhật thông tin hồ sơ cho khách hàng
+    public void updateProfile();
+
 }

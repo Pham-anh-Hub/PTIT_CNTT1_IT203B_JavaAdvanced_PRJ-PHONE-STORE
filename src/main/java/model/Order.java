@@ -1,5 +1,8 @@
 package model;
 
+import dao.impl.OrderDetailDAOImpl;
+import dao.impl.OrderImpl;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -65,41 +68,48 @@ public class Order{
         this.status = status;
     }
 
-    public void displayHeader() {
-        System.out.println("--------------------------------------------------------------");
-        System.out.printf("| %-20s | %-8s | %-12s | %-12s |\n",
-                "Sản phầm", "Số lượng", "Giá", "Thành tiền");
-        System.out.println("--------------------------------------------------------------");
+    public List<OrderDetail> getOrderDetails() {
+        return new OrderDetailDAOImpl().getOrderDetailsByOrderId(this.getOrder_id());
     }
+
+    public void setOrderDetails(List<OrderDetail> orderDetails) {
+        this.orderDetails = orderDetails;
+    }
+
+    public void displayHeader() {
+        System.out.println("---------------------------------------------------------------");
+        System.out.printf("| %-18s | %-8s | %-12s | %-12s |\n",
+                "Sản phầm", "Số lượng", "Giá", "Thành tiền");
+        System.out.println("---------------------------------------------------------------");
+    }
+
 
 
     public void printOrder() {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-        System.out.println("\n==================== HÓA ĐƠN ====================");
+        System.out.println("\n========================== HÓA ĐƠN ===========================");
         System.out.println("Mã đơn hàng    : " + order_id);
         System.out.println("Khách hàng     : " + customer_id);
         System.out.println("Ngày đặt hàng  : " + (order_date != null ? order_date.format(dtf) : ""));
         System.out.println("Trạng thái     : " + status);
-        System.out.println("--------------------------------------------------------------");
 
-        // Header
         displayHeader();
 
-        // Body
-        if (orderDetails != null && !orderDetails.isEmpty()) {
-            for (OrderDetail od : orderDetails) {
+
+        List<OrderDetail> details = getOrderDetails();
+        if (details != null && !details.isEmpty()) {
+            for (OrderDetail od : details) {
                 od.display();
             }
         } else {
-            System.out.println("| Hóa đơn hiện tại trống                                   |");
+            System.out.println("|                   Hóa đơn hiện tại trống                    |");
         }
 
-        System.out.println("--------------------------------------------------------------");
-
-        // Tổng tiền
+        System.out.println("---------------------------------------------------------------");
         System.out.printf("Thành tiền: %,.0f VND\n",
                 total_amount != null ? total_amount : BigDecimal.ZERO);
-
-        System.out.println("==============================================================\n");
+        System.out.println("===============================================================\n");
     }
+
+
 }

@@ -1,25 +1,27 @@
 package model;
 
+import dao.impl.ProductDAOImpl;
+
 import java.math.BigDecimal;
-import java.util.PriorityQueue;
 
 public class OrderDetail {
         private String od_id;
         private int quantity;
-        private Product product;
+        private String product_id;
+        private String order_id;
         private BigDecimal price;
 
 
     public OrderDetail() {
     }
 
-    public OrderDetail(String od_id, int quantity, Product product, BigDecimal price) {
+    public OrderDetail(String od_id, int quantity, String product_id, String order_id, BigDecimal price) {
         this.od_id = od_id;
         this.quantity = quantity;
-        this.product = product;
+        this.product_id = product_id;
+        this.order_id = order_id;
         this.price = price;
     }
-
 
     public String getOd_id() {
         return od_id;
@@ -37,12 +39,20 @@ public class OrderDetail {
         this.quantity = quantity;
     }
 
-    public Product getProduct() {
-        return product;
+    public String getProduct_id() {
+        return product_id;
     }
 
-    public void setProduct(Product product) {
-        this.product = product;
+    public void setProduct_id(String product_id) {
+        this.product_id = product_id;
+    }
+
+    public String getOrder_id() {
+        return order_id;
+    }
+
+    public void setOrder_id(String order_id) {
+        this.order_id = order_id;
     }
 
     public BigDecimal getPrice() {
@@ -53,11 +63,10 @@ public class OrderDetail {
         this.price = price;
     }
 
-
     public void display() {
-        String productName = (product != null) ? product.getProduct_name() : "Unknown";
+        String productName = (new ProductDAOImpl().getProductById(product_id) != null) ? new ProductDAOImpl().getProductById(product_id).getProduct_name() : "Unknown";
         BigDecimal total = price.multiply(BigDecimal.valueOf(quantity));
-        System.out.printf("| %-20s | %-8d | %-12s | %-12s |\n",
+        System.out.printf("| %-18s | %-8d | %-12s | %-12s |\n",
                 productName,
                 quantity,
                 String.format("%,.0f", price),

@@ -1,6 +1,6 @@
 package service;
 
-import dao.CategoryDAOImpl;
+import dao.impl.CategoryDAOImpl;
 import model.Category;
 import service.serviceInterface.ICategoryService;
 import utils.CenterFormat;

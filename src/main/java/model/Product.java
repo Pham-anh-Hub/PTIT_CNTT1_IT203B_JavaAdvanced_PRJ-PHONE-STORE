@@ -1,6 +1,7 @@
 package model;
 
-import dao.CategoryDAOImpl;
+import dao.impl.CategoryDAOImpl;
+import utils.AuthSessionManagement;
 import utils.CenterFormat;
 
 import java.math.BigDecimal;
@@ -140,23 +141,34 @@ public class Product {
 
     public void displayInfoProduct() {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-        System.out.printf("| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |\n",
-                CenterFormat.center(product_id, 12),
-                CenterFormat.center(product_name, 20),
-                CenterFormat.center(new CategoryDAOImpl().getCategoryById(category_id).getCate_name(), 10),
-                CenterFormat.center(brand, 10),
-                CenterFormat.center(color, 8),
-                CenterFormat.center(storage + " GB", 10),
-                CenterFormat.center(String.format("%,.0f VND", price), 14),
-                CenterFormat.center(String.valueOf(stock), 7),
-                CenterFormat.center(created_at != null ? dtf.format(created_at) : "_", 19),
-                CenterFormat.center(updated_at != null ? dtf.format(updated_at) : "_", 19)
-        );
+        User currUser = AuthSessionManagement.getInstance().getCurrentUser();
+        boolean isAdmin = currUser != null && currUser.getRole().equalsIgnoreCase("admin");
+        if (isAdmin){
+            System.out.printf("| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |\n",
+                    CenterFormat.center(product_id, 12),
+                    CenterFormat.center(product_name, 20),
+                    CenterFormat.center(new CategoryDAOImpl().getCategoryById(category_id).getCate_name(), 10),
+                    CenterFormat.center(brand, 10),
+                    CenterFormat.center(color, 15),
+                    CenterFormat.center(storage + " GB", 10),
+                    CenterFormat.center(String.format("%,.0f VND", price), 14),
+                    CenterFormat.center(String.valueOf(stock), 7),
+                    CenterFormat.center(created_at != null ? dtf.format(created_at) : "_", 19),
+                    CenterFormat.center(updated_at != null ? dtf.format(updated_at) : "_", 19)
+            );
+        }else{
+            System.out.printf("| %s | %s | %s | %s | %s | %s | %s | %s |\n",
+                    CenterFormat.center(product_id, 12),
+                    CenterFormat.center(product_name, 20),
+                    CenterFormat.center(new CategoryDAOImpl().getCategoryById(category_id).getCate_name(), 10),
+                    CenterFormat.center(brand, 10),
+                    CenterFormat.center(color, 15),
+                    CenterFormat.center(storage + " GB", 10),
+                    CenterFormat.center(String.format("%,.0f VND", price), 14),
+                    CenterFormat.center(String.valueOf(stock), 7)
+            );
+        }
 
-//        // In mô tả
-//        String desc = (description != null && !description.isBlank()) ? description : "Không có mô tả";
-//        System.out.printf("|  %-156s|\n", " Mô tả: " + desc);
-//        System.out.println("|" + "─".repeat(158) + "|");
     }
 
 

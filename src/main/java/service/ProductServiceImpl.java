@@ -1,66 +1,92 @@
 package service;
 
 
-import dao.CategoryDAOImpl;
-import dao.ProductDAOImpl;
-import dao.daoInterface.ProductDAO;
+import dao.impl.CategoryDAOImpl;
+import dao.impl.ProductDAOImpl;
 import model.Category;
 import model.Product;
+import model.User;
 import service.serviceInterface.IProductService;
+import utils.AuthSessionManagement;
 import utils.CenterFormat;
+import utils.MyDatabase;
 
-import javax.swing.plaf.PanelUI;
 import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Scanner;
 
 public class ProductServiceImpl implements IProductService {
     public static Scanner sc = new Scanner(System.in);
+    private static final int limitRecord = 6;
 
     public static void displayHeader(List<Product> products, String header){
-        System.out.println("┏" + "━".repeat(158) + "┓");
-        System.out.printf("| %s |\n", CenterFormat.center(header.toUpperCase(), 156));
-        System.out.println("|" + "━".repeat(158) + "|");
+        User currUser = AuthSessionManagement.getInstance().getCurrentUser();
+        boolean isAdmin = currUser != null && currUser.getRole().equalsIgnoreCase("admin");
+        int staticWidth = isAdmin ? 165 : 121;
+        System.out.println("┏" + "━".repeat(staticWidth) + "┓");
+        System.out.printf("| %s |\n", CenterFormat.center(header.toUpperCase(), staticWidth-2)
+        );
+        System.out.println("┣" + "━".repeat(staticWidth) + "┫");
 
         if (products.isEmpty()) {
-            System.out.printf("| %s |\n", CenterFormat.center("DANH SÁCH SẢN PHẨM TRỐNG", 156));
-            System.out.println("┗" + "━".repeat(158) + "┛");
+            System.out.printf("| %s |\n", CenterFormat.center("DANH SÁCH SẢN PHẨM TRỐNG", staticWidth));
+            System.out.println("┗" + "━".repeat(staticWidth) + "┛");
             return; // thoát sớm, không in tiếp
         }
-        System.out.printf("| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |\n",
-                CenterFormat.center("Mã sản phẩm", 12),
-                CenterFormat.center("Tên sản phẩm", 20),
-                CenterFormat.center("Danh mục", 10),
-                CenterFormat.center("Hãng", 10),
-                CenterFormat.center("Màu", 8),
-                CenterFormat.center("Dung lượng", 10),
-                CenterFormat.center("Giá tiền", 14),
-                CenterFormat.center("Tồn kho", 5),
-                CenterFormat.center("Thời gian tạo", 19),
-                CenterFormat.center("Thời gian sửa", 19)
-        );
-        System.out.println("|" + "━".repeat(158) + "|");
+        if (isAdmin){
+            System.out.printf("| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |\n",
+                    CenterFormat.center("Mã sản phẩm", 12),
+                    CenterFormat.center("Tên sản phẩm", 20),
+                    CenterFormat.center("Danh mục", 10),
+                    CenterFormat.center("Hãng", 10),
+                    CenterFormat.center("Màu", 15),
+                    CenterFormat.center("Dung lượng", 10),
+                    CenterFormat.center("Giá tiền", 14),
+                    CenterFormat.center("Tồn kho", 7),
+                    CenterFormat.center("Thời gian tạo", 19),
+                    CenterFormat.center("Thời gian sửa", 19)
+            );
+        }else {
+            System.out.printf("| %s | %s | %s | %s | %s | %s | %s | %s |\n",
+                    CenterFormat.center("Mã sản phẩm", 12),
+                    CenterFormat.center("Tên sản phẩm", 20),
+                    CenterFormat.center("Danh mục", 10),
+                    CenterFormat.center("Hãng", 10),
+                    CenterFormat.center("Màu", 15),
+                    CenterFormat.center("Dung lượng", 10),
+                    CenterFormat.center("Giá tiền", 14),
+                    CenterFormat.center("Tồn kho", 7)
+            );
+        }
+
+        System.out.println("┣" + "━".repeat(staticWidth) + "┫");
     }
 
 
     @Override
-    public void displayProductList() {
+    public void displayProductList(List<Product> productList, String optionSort) {
+        User currUser = AuthSessionManagement.getInstance().getCurrentUser();
+        boolean isAdmin = currUser != null && currUser.getRole().equalsIgnoreCase("admin");
+        int staticWidth = isAdmin ? 165 : 121;
+
         int limitRecord = 6;
         int currentPage = 1;
-        int totalProducts = new ProductDAOImpl().getProducts().size();
+        int totalProducts = productList.size();
         int pages = (int) Math.ceil((double) totalProducts / limitRecord);
         int pageChoice = 1;
 
         do {
-            List<Product> products = new ProductDAOImpl().getProductsForPagination(limitRecord, currentPage);
+            List<Product> products = new ProductDAOImpl().getProductsForPagination(limitRecord, currentPage, optionSort);
             displayHeader(products, "danh sách sản phẩm");
 
             for (Product product : products) {
                 product.displayInfoProduct();
             }
 
-            System.out.print("┗" + "━".repeat(158) + "┛\n");
+            System.out.print("┗" + "━".repeat(staticWidth) + "┛\n");
 
             StringBuilder pagination = new StringBuilder();
 
@@ -71,9 +97,9 @@ public class ProductServiceImpl implements IProductService {
                     pagination.append(" [" + i + "]");
                 }
             }
-            System.out.println(CenterFormat.center(String.valueOf(pagination), 160));
+            System.out.println(CenterFormat.center(String.valueOf(pagination), staticWidth));
 
-            System.out.print("\nXem thêm: ");
+            System.out.print("\nXem thêm (0 để dừng): ");
             try {
                 pageChoice = Integer.parseInt(sc.nextLine().trim());
             } catch (NumberFormatException e) {
@@ -81,8 +107,13 @@ public class ProductServiceImpl implements IProductService {
             }
 
             // Validate trang hợp lệ
-            if (pageChoice < 1 || pageChoice > pages) break;
-            currentPage = pageChoice;
+            if (pageChoice < 1 || pageChoice > pages){
+                System.out.println("-".repeat(staticWidth));
+                break;
+            }else{
+                currentPage = pageChoice;
+            }
+
 
         }while(pageChoice >= 1 && pageChoice <= pages);
 
@@ -94,7 +125,7 @@ public class ProductServiceImpl implements IProductService {
 
         Product newProduct = new Product();
 
-        // ===== Danh mục =====
+        // Danh mục
         new CategoryServiceImpl().displayListCategory();
         while (true) {
             System.out.print("Chọn mã danh mục: ");
@@ -234,7 +265,7 @@ public class ProductServiceImpl implements IProductService {
 
     @Override
     public void updateProduct() {
-        displayProductList();
+        displayProductList(new ProductDAOImpl().getProducts(), "order by brand asc, price desc");
 
         System.out.print("Nhập mã sản phẩm cần cập nhật: ");
         String pId = sc.nextLine().trim();
@@ -269,102 +300,124 @@ public class ProductServiceImpl implements IProductService {
                 continue;
             }
 
-            switch (choice) {
-                case 1:
-                    new CategoryServiceImpl().displayListCategory();
-                    System.out.print("Nhập mã danh mục mới: ");
-                    String cateId = sc.nextLine().trim();
-                    if (new CategoryDAOImpl().getCategoryById(cateId) != null) {
-                        target.setCategory_id(cateId);
-                    } else {
-                        System.out.println("[!] Danh mục không tồn tại.");
+            Connection conn = null;
+            try {
+                conn = MyDatabase.getInstance().getConnection();
+                conn.setAutoCommit(false);
+                switch (choice) {
+                    case 1:
+                        new CategoryServiceImpl().displayListCategory();
+                        System.out.print("Nhập mã danh mục mới: ");
+                        String cateId = sc.nextLine().trim();
+                        if (new CategoryDAOImpl().getCategoryById(cateId) != null) {
+                            target.setCategory_id(cateId);
+                        } else {
+                            System.out.println("[!] Danh mục không tồn tại.");
+                        }
+                        break;
+
+                    case 2:
+                        System.out.print("Nhập tên sản phẩm mới: ");
+                        String name = sc.nextLine().trim();
+                        boolean existed = new ProductDAOImpl().getProducts().stream().anyMatch(p -> p.getProduct_name().equalsIgnoreCase(name) && !p.getProduct_id().equals(pId));
+                        if (name.isEmpty()) {
+                            System.out.println("Vui lòng không để trống.");
+                        } else if (existed) {
+                            System.out.println("Tên máy đã tồn tại.");
+                        } else {
+                            target.setProduct_name(name);
+                        }
+                        break;
+
+                    case 3:
+                        System.out.print("Nhập hãng mới: ");
+                        String brand = sc.nextLine().trim();
+                        if (!brand.isEmpty()) target.setBrand(brand);
+                        break;
+
+                    case 4:
+                        System.out.print("Nhập màu mới: ");
+                        String color = sc.nextLine().trim();
+                        if (!color.isEmpty()) target.setColor(color);
+                        break;
+
+                    case 5:
+                        System.out.print("Nhập dung lượng mới: ");
+                        try {
+                            int storage = Integer.parseInt(sc.nextLine().trim());
+                            if (storage > 0) target.setStorage(storage);
+                            else System.out.println("Vui lòng nhập dung lượng hợp lệ (> 0).");
+                        } catch (Exception e) {
+                            System.out.println("Dung lượng chưa hợp lệ.");
+                        }
+                        break;
+
+                    case 6:
+                        System.out.print("Nhập giá mới: ");
+                        try {
+                            BigDecimal price = new BigDecimal(sc.nextLine().trim());
+                            if (price.compareTo(BigDecimal.ZERO) > 0)
+                                target.setPrice(price);
+                            else System.err.println("Vui lòng nhập giá hợp lệ (Phải > 0)");
+                        } catch (Exception e) {
+                            System.out.println("Giá cập nhật chưa hợp lệ.");
+                        }
+                        break;
+
+                    case 7:
+                        System.out.print("Nhập tồn kho mới: ");
+                        try {
+                            int stock = Integer.parseInt(sc.nextLine().trim());
+                            if (stock >= 0) target.setStock(stock);
+                            else System.out.println("Vui lòng nhập tồn kho hợp lệ (Phải >= 0)");
+                        } catch (Exception e) {
+                            System.out.println("Tồn kho cập nhật chưa hợp lệ.");
+                        }
+                        break;
+
+                    case 8:
+                        System.out.print("Nhập mô tả mới: ");
+                        String desc = sc.nextLine().trim();
+                        target.setDescription(desc);
+                        break;
+
+                    case 0:
+                        target.setUpdated_at(LocalDateTime.now());
+                        if (new ProductDAOImpl().updateProductInfo(target, conn)) {
+                            System.out.println("Cập nhật thành công!");
+                        } else {
+                            System.out.println("Cập nhật thất bại!");
+                        }
+                        break;
+
+                    default:
+                        System.out.println("Lựa chọn không hợp lệ.");
+                }
+            } catch (SQLException e) {
+                try {
+                    conn.rollback();
+                    System.err.println("Cập nhật sản phẩm thất bại, vui lòng thử lại");
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
+            } finally {
+                try {
+                    if (conn != null) {
+                        conn.setAutoCommit(true);
+                        conn.close();
                     }
-                    break;
-
-                case 2:
-                    System.out.print("Nhập tên sản phẩm mới: ");
-                    String name = sc.nextLine().trim();
-                    boolean existed = new ProductDAOImpl().getProducts().stream().anyMatch(p -> p.getProduct_name().equalsIgnoreCase(name) && !p.getProduct_id().equals(pId));
-                    if (name.isEmpty()) {
-                        System.out.println("Vui lòng không để trống.");
-                    } else if (existed) {
-                        System.out.println("Tên máy đã tồn tại.");
-                    } else {
-                        target.setProduct_name(name);
-                    }
-                    break;
-
-                case 3:
-                    System.out.print("Nhập hãng mới: ");
-                    String brand = sc.nextLine().trim();
-                    if (!brand.isEmpty()) target.setBrand(brand);
-                    break;
-
-                case 4:
-                    System.out.print("Nhập màu mới: ");
-                    String color = sc.nextLine().trim();
-                    if (!color.isEmpty()) target.setColor(color);
-                    break;
-
-                case 5:
-                    System.out.print("Nhập dung lượng mới: ");
-                    try {
-                        int storage = Integer.parseInt(sc.nextLine().trim());
-                        if (storage > 0) target.setStorage(storage);
-                        else System.out.println("Vui lòng nhập dung lượng hợp lệ (> 0).");
-                    } catch (Exception e) {
-                        System.out.println("Dung lượng chưa hợp lệ.");
-                    }
-                    break;
-
-                case 6:
-                    System.out.print("Nhập giá mới: ");
-                    try {
-                        BigDecimal price = new BigDecimal(sc.nextLine().trim());
-                        if (price.compareTo(BigDecimal.ZERO) > 0)
-                            target.setPrice(price);
-                        else System.err.println("Vui lòng nhập giá hợp lệ (Phải > 0)");
-                    } catch (Exception e) {
-                        System.out.println("Giá cập nhật chưa hợp lệ.");
-                    }
-                    break;
-
-                case 7:
-                    System.out.print("Nhập tồn kho mới: ");
-                    try {
-                        int stock = Integer.parseInt(sc.nextLine().trim());
-                        if (stock >= 0) target.setStock(stock);
-                        else System.out.println("Vui lòng nhập tồn kho hợp lệ (Phải >= 0)");
-                    } catch (Exception e) {
-                        System.out.println("Tồn kho cập nhật chưa hợp lệ.");
-                    }
-                    break;
-
-                case 8:
-                    System.out.print("Nhập mô tả mới: ");
-                    String desc = sc.nextLine().trim();
-                    target.setDescription(desc);
-                    break;
-
-                case 0:
-                    target.setUpdated_at(LocalDateTime.now());
-                    if (new ProductDAOImpl().updateProductInfo(target)) {
-                        System.out.println("Cập nhật thành công!");
-                    } else {
-                        System.out.println("Cập nhật thất bại!");
-                    }
-                    break;
-
-                default:
-                    System.out.println("Lựa chọn không hợp lệ.");
+                } catch (SQLException e) {
+                    System.err.println(e.toString());
+                }
             }
+
 
         } while (choice != 0);
     }
 
     @Override
     public void deleteProduct() {
-        displayProductList();
+        displayProductList(new ProductDAOImpl().getProducts(), "order by brand asc, price desc");
 
         System.out.print("Nhập mã sản phẩm cần xóa: ");
         String pId = sc.nextLine().trim();
@@ -391,6 +444,10 @@ public class ProductServiceImpl implements IProductService {
 
     @Override
     public void searchProductByName() {
+        User currUser = AuthSessionManagement.getInstance().getCurrentUser();
+        boolean isAdmin = currUser != null && currUser.getRole().equalsIgnoreCase("admin");
+        int staticWidth = isAdmin ? 165 : 121;
+
         System.out.print("Nhập tên sản phẩm cần tìm: ");
         String keyword = sc.nextLine().trim();
 
@@ -406,7 +463,24 @@ public class ProductServiceImpl implements IProductService {
             p.displayInfoProduct();
         }
 
-        System.out.println("┗" + "━".repeat(158) + "┛");
+        System.out.println("┗" + "━".repeat(staticWidth) + "┛");
     }
+
+    @Override
+    public void sortProductsByPrice() {
+        String sortChoice = null;
+        System.out.print("\n\nSắp xếp sản phẩm: \n" +
+                "1. Tăng dần\n" +
+                "2. Giảm dần:\n" +
+                "Lựa chọn: ");
+        try{
+            sortChoice = Integer.parseInt(sc.nextLine()) == 1 ? "asc" : "desc";
+        }catch (NumberFormatException e){
+            System.err.println("Lựa chọn không hợp lệ");
+        }
+//        List<Product> sortResult = new ProductDAOImpl().sortProductsByPrice(sortChoice);
+        displayProductList(new ProductDAOImpl().getProducts(), "order by price " + sortChoice);
+    }
+
 
 }

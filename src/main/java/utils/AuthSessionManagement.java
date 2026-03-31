@@ -4,7 +4,6 @@ import model.User;
 
 public class AuthSessionManagement {
     private static AuthSessionManagement instance;
-
     private User currentUser = null;
 
     public AuthSessionManagement() {

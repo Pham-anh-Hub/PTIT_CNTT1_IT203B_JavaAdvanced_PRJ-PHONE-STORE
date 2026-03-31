@@ -6,6 +6,7 @@ public abstract class User {
     private String email;
     private String password;
     private String role;
+    private boolean status;
 
     public User() {
     }
@@ -16,6 +17,7 @@ public abstract class User {
         this.email = email;
         this.password = password;
         this.role = role;
+        this.status = true;
     }
 
     public String getId() {
@@ -58,7 +60,15 @@ public abstract class User {
         this.email = email;
     }
 
+    public boolean isActive() {
+        return status;
+    }
+
+    public void setStatus(boolean status) {
+        this.status = status;
+    }
+
     public void displayInfo() {
-        System.out.print("Mã người dùng: " + id + "\nTên người dùng: " + username + "\nEmail: " + email + "\nMật khẩu: " + (password.substring(0, 4) + password.substring(4, password.length())) + "\nVai trò: " + role);
+        System.out.print("Mã người dùng: " + id + "\nTên người dùng: " + username + "\nEmail: " + email + "\nMật khẩu: " + (password.substring(0, 4) + password.substring(0, 4) + "*".repeat(password.length() - 4)) + "\nVai trò: " + role);
     }
 }

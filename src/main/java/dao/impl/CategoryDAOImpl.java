@@ -1,6 +1,6 @@
-package dao;
+package dao.impl;
 
-import dao.daoInterface.CategoryDAO;
+import dao.Interface.ICategoryDAO;
 import model.Category;
 import utils.MyDatabase;
 
@@ -11,7 +11,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CategoryDAOImpl implements CategoryDAO {
+public class CategoryDAOImpl implements ICategoryDAO {
 
 //    Thêm mới danh mục .
 //    Hiển thị danh mục .

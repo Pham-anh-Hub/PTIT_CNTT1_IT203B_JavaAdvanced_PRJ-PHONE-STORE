@@ -1,10 +1,11 @@
-package dao.daoInterface;
+package dao.Interface;
 
 import model.Product;
 
+import java.sql.Connection;
 import java.util.List;
 
-public interface ProductDAO {
+public interface IProductDAO {
     // Quản lý Sản phẩm
 
 //    Lấy danh sách sản phẩm
@@ -18,7 +19,7 @@ public interface ProductDAO {
     public boolean insertNewProduct(Product newProduct);
 
 //    Sửa thông tin sản phẩm
-    public boolean updateProductInfo(Product updateProduct);
+    public boolean updateProductInfo(Product updateProduct, Connection connection);
 
 //    Xóa thông tin sản phẩm
     public boolean deleteProductInfo(String productId);

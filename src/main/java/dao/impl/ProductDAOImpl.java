@@ -1,15 +1,14 @@
-package dao;
+package dao.impl;
 
-import dao.daoInterface.ProductDAO;
+import dao.Interface.IProductDAO;
 import model.Product;
 import utils.MyDatabase;
 
 import java.sql.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProductDAOImpl implements ProductDAO {
+public class ProductDAOImpl implements IProductDAO {
     public Product setProduct(ResultSet rs) throws SQLException {
         Product product = new Product();
         product.setProduct_id(rs.getString("product_id"));
@@ -58,10 +57,10 @@ public class ProductDAOImpl implements ProductDAO {
 
 
 
-    public List<Product> getProductsForPagination(int limitRecord, int currPage ) {
+    public List<Product> getProductsForPagination(int limitRecord, int currPage, String optionSort ) {
         List<Product> products = new ArrayList<>();
         try(Connection conn = MyDatabase.getInstance().getConnection();
-            PreparedStatement pstmt = conn.prepareStatement("select * from products where cate_id in (select cate_id from categories where status = true) && is_active = true order by product_id asc limit ? offset ?")) {
+            PreparedStatement pstmt = conn.prepareStatement("select * from products where cate_id in (select cate_id from categories where status = true) && is_active = true " + optionSort +" limit ? offset ?")) {
 
             pstmt.setInt(1, limitRecord);
             pstmt.setInt(2, (currPage * limitRecord - limitRecord));
@@ -144,14 +143,13 @@ public class ProductDAOImpl implements ProductDAO {
     }
 
     @Override
-    public boolean updateProductInfo(Product updateProduct) {
+    public boolean updateProductInfo(Product updateProduct, Connection conn) {
         // chuyển vào service
         if(!(new CategoryDAOImpl().getCategoryById(updateProduct.category_id).getStatus())){
             return false;
         }
 
-        try(Connection conn = MyDatabase.getInstance().getConnection();
-        PreparedStatement pstmt = conn.prepareStatement(
+        try(PreparedStatement pstmt = conn.prepareStatement(
         "update products set product_name = ?, brand = ?, color = ?, storage = ?, price = ?, stock = ?, description = ?, cate_id = ?, updated_at = NOW() where product_id = ?")){
 
             pstmt.setString(1, updateProduct.getProduct_name()); // productName
@@ -210,9 +208,8 @@ public class ProductDAOImpl implements ProductDAO {
     public List<Product> sortProductsByPrice(String sortChoice) {
         List<Product> sortResult = new ArrayList<>();
         try(Connection conn = MyDatabase.getInstance().getConnection();
-        PreparedStatement pstmt = conn.prepareStatement("select * from products where cate_id in (select cate_id from categories where status = true) && is_active = true order by product_id ?")){
+        PreparedStatement pstmt = conn.prepareStatement("select * from products where cate_id in (select cate_id from categories where status = true) && is_active = true order by price " + sortChoice)){
 
-            pstmt.setString(1, sortChoice);
 
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()){

@@ -1,10 +1,10 @@
-package dao.daoInterface;
+package dao.Interface;
 
 import model.Category;
 
 import java.util.List;
 
-public interface CategoryDAO {
+public interface ICategoryDAO {
     public List<Category> getCategories();
 
     public List<Category> getAvailableCategories();
