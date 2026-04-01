@@ -76,12 +76,9 @@ create table orderDetails (
 
 -- Add mockdata
 insert into users value
-('AD001', 'admin01', 'ADMIN', '$2a$10$vCnoxohet17J.mIDHum1Ju.g.eVQ9DcgQau6zrGgT0GEfAbeFdkOW', NULL, NULL, NULL, NULL, true),
-('CU002', 'user01', 'CUSTOMER', '$2a$10$vCnoxohet17J.mIDHum1Ju.g.eVQ9DcgQau6zrGgT0GEfAbeFdkOW', 'Nguyễn Văn A', 'nva@gmail.com', '0912345678', 'Hà Đông, Hà Nội', true),
-('CU003', 'user02', 'CUSTOMER', '$2a$10$vCnoxohet17J.mIDHum1Ju.g.eVQ9DcgQau6zrGgT0GEfAbeFdkOW', 'Trần Thị B', 'ttb@gmail.com', '0987654321', 'Quận 7, TP.Hồ Chí Minh', true),
-('CU004', 'user03', 'CUSTOMER', '$2a$10$vCnoxohet17J.mIDHum1Ju.g.eVQ9DcgQau6zrGgT0GEfAbeFdkOW', 'Lê Văn C', 'lvc@gmail.com', '0909090909', 'Ba Đình, Hà Nội', true);
+('AD001', 'admin01', 'ADMIN', '$2a$10$vCnoxohet17J.mIDHum1Ju.g.eVQ9DcgQau6zrGgT0GEfAbeFdkOW', NULL, NULL, NULL, NULL, true);
 
-select * from users where role = 'customer';
+select * from users;
 
 insert into categories values
 ('C001', 'iPhone', 'Apple smartphones', true),
@@ -89,6 +86,9 @@ insert into categories values
 ('C003', 'Xiaomi', 'Xiaomi smartphones', true),
 ('C004', 'Oppo', 'Oppo smartphones', true),
 ('C005', 'Vivo', 'Vivo smartphones', true);
+
+select * from categories;
+
 insert into products values
 ('PR001', 'iPhone 15 Pro', 'Apple', 'White Titanium', 256, 30000000, 5,  'Chip A17 Pro, camera 48MP, màn hình 6.1 inch', 'C001', NOW(), NULL, true),
 ('PR002', 'Samsung S23 Ultra', 'Samsung', 'Phantom Black', 256, 26000000, 7,  'Snapdragon 8 Gen 2, camera 200MP, S-Pen', 'C002', NOW(), NULL, true),
@@ -110,25 +110,12 @@ insert into products values
 ('PR014', 'Vivo Y36',    'Vivo', 'Meteor Black', 128, 6500000,  20, 'Snapdragon 680, camera 50MP, pin 5000mAh', 'C005', NOW(), NULL, true),
 ('PR015', 'Vivo X90 Pro','Vivo', 'Legendary Black', 256, 20000000, 6, 'Dimensity 9200, camera Zeiss 50MP', 'C005', NOW(), NULL, true);
 
+select * from products;
 
-
-insert into orders values
 -- mã order, mã người dùng, created, total_amount, status
-('OR001', 'CU002', NOW(), 25000000, 'PENDING'),
-('OR002', 'CU004', NOW(), 20000000, 'SHIPPING'),
-('OR003', 'CU002', NOW(), 40000000, 'DELIVERED'),
-('OR004', 'CU003', NOW(), 15000000, 'CANCELLED');
 
-insert into orderDetails values
 -- mã od detail, mã order, mã sp, số lượng , tổng giá
-('OD001', 'OR001', 'PR001', 5, 125000000),
-('OD002', 'OR002', 'PR003', 10, 200000000),
-('OD003', 'OR003', 'PR001', 8, 200000000),
-('OD004', 'OR003', 'PR002', 5, 75000000),
-('OD005', 'OR004', 'PR004', 6, 90000000);
 
-
-select * from orderDetails where order_id = 'OR001';
 
 -- bảng cart bổ sung (nếu cần hoặc nếu làm được)
 create table cart (
@@ -136,32 +123,31 @@ create table cart (
     user_id    varchar(20) not null,
     product_id varchar(50) not null,
     quantity   int not null default 1,
-
     foreign key (user_id) references users(id),
     foreign key (product_id) references products(product_id),
 	unique (user_id, product_id)
 );
 
 -- Thêm sản phẩm vào giỏ hàng
-delimiter //
-create procedure pr_add_to_cart(
-    in p_user_id varchar(20),
-    in p_product_id varchar(50),
-    in p_quantity int
-)
-begin
-    -- kiểm tra sản phẩm đã có trong giỏ chưa
-    if exists (select 1 from cart where user_id = p_user_id and product_id = p_product_id) then
-        -- đã có → tăng số lượng
-        update cart set quantity = quantity + p_quantity
-        where user_id = p_user_id and product_id = p_product_id;
-    else
-        -- chưa có → thêm mới
-        insert into cart (user_id, product_id, quantity)
-        values (p_user_id, p_product_id, p_quantity);
-    end if;
-end //
-delimiter ;
+	delimiter //
+	create procedure pr_add_to_cart(
+		in p_user_id varchar(20),
+		in p_product_id varchar(50),
+		in p_quantity int
+	)
+	begin
+		-- kiểm tra sản phẩm đã có trong giỏ chưa
+		if exists (select 1 from cart where user_id = p_user_id and product_id = p_product_id) then
+			-- đã có - tăng số lượng
+			update cart set quantity = quantity + p_quantity
+			where user_id = p_user_id and product_id = p_product_id;
+		else
+			-- chưa có - thêm mới
+			insert into cart (user_id, product_id, quantity)
+			values (p_user_id, p_product_id, p_quantity);
+		end if;
+	end //
+	delimiter ;
 
 -- cập nhật giỏ hàng
 delimiter //
@@ -179,33 +165,26 @@ delimiter ;
 
 -- Thống kê doanh thu và khách hàng
 delimiter //
-create procedure pr_get_top5_bestproduct()
+create procedure pr_get_top5_bestproduct( in targetMonth int, in targetYear int)
 begin
-select p.product_id, p.product_name, p.brand, sum(quantity) as total_quantity, sum(p.price) as total_revenue
+select p.product_id, p.product_name, p.brand, sum(quantity) as total_quantity, sum(p.price * quantity) as total_revenue
 from orderDetails od join products p on od.product_id = p.product_id 
 join orders ord on od.order_id = ord.order_id
-where month(ord.order_date) = month(now()) and year(ord.order_date) = year(now()) and ord.status = 'DELIVERED'
+where month(ord.order_date) = targetMonth and year(ord.order_date) = targetYear  and ord.status = 'DELIVERED'
 group by p.product_id, p.product_name, p.brand, p.color, p.cate_id order by total_revenue desc limit 5 offset 0;
 end //
 delimiter ;
 
-call pr_get_top5_bestproduct;
+call pr_get_top5_bestproduct(3, 2026);
 
 delimiter //
-create procedure pr_get_top3_potential_customer()
+create procedure pr_get_top3_potential_customer(in targetMonth int, in targetYear int)
 begin
-select u.username, u.fullname, u.email, u.phone, count(ord.order_id) as total_orders, sum(ord.total_amount) as total_paid
-from orders ord join users u on ord.id = u.id where ord.status = 'DELIVERED' and u.role = 'CUSTOMER' and u.is_active = true and month(ord.order_date) = month(now()) and year(ord.order_date) = year(now())
-group by u.id, u.username, u.fullname, u.email, u.phone order by u.fullname asc limit 3;
+select u.username, u.fullname, u.email, u.phone, count(ord.order_id) as total_orders, sum(ord.total_amount * od.quantity) as total_paid
+from orders ord join users u on ord.id = u.id
+join orderDetails od on ord.order_id = od.order_id where ord.status = 'DELIVERED' and u.role = 'CUSTOMER' and u.is_active = true and month(ord.order_date) = targetMonth and year(ord.order_date) = targetYear
+group by u.id, u.username, u.fullname, u.email, u.phone order by total_orders desc limit 3;
 end //
 delimiter ;
 
-call pr_get_top3_potential_customer;
-select * from users;
-select * from orders;
-
-
-select sum(total_amount) as total_revenue from orders where month(order_date) = month(now()) and status = 'DELIVERED';
-
-
-select * from orders where status = 'DELIVERED';
+call pr_get_top3_potential_customer(3, 2026);
