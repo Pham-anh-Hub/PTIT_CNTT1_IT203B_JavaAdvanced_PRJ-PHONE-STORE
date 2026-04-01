@@ -14,10 +14,10 @@ public class UserServiceImpl implements IUserService {
     @Override
     public void displayAllCustomers() {
         List<User> customers = new UserDAOImpl().getAllCustomers();
-        System.out.println("━".repeat(30) + " DANH SÁCH KHÁCH HÀNG " + "━".repeat(30));
+        System.out.println("━".repeat(41) + " DANH SÁCH KHÁCH HÀNG " + "━".repeat(41));
 
         if (customers.isEmpty()) {
-            System.out.println("[!] Chưa có khách hàng nào.");
+            System.out.println("Chưa có khách hàng nào.");
             return;
         }
 
@@ -44,8 +44,17 @@ public class UserServiceImpl implements IUserService {
             System.out.println("Không tìm thấy khách hàng.");
             return;
         }
+        System.out.println("============================ KHÁCH HÀNG CẦN TÌM ==============================");
+        System.out.println("==============================================================================");
         results.forEach(u -> u.displayInfo());
+        System.out.println("\n===============================================================================");
+
     }
+
+    public static void main(String[] args) {
+        new UserServiceImpl().searchCustomer();
+    }
+
 
     // khóa tài khoản KH - thay vì xóa
     @Override
@@ -94,7 +103,10 @@ public class UserServiceImpl implements IUserService {
         } else {
             System.out.println("Đã hủy thao tác.");
         }
+        sc.nextLine();
     }
+
+
 
     // tuơng tự với khóa, cập nhật lại trạng thái tài khoản
     @Override
@@ -143,6 +155,7 @@ public class UserServiceImpl implements IUserService {
         } else {
             System.out.println("Đã hủy thao tác.");
         }
+        sc.nextLine();
     }
 
 }

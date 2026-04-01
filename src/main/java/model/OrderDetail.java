@@ -64,12 +64,12 @@ public class OrderDetail {
     }
 
     public void display() {
-        String productName = (new ProductDAOImpl().getProductById(product_id) != null) ? new ProductDAOImpl().getProductById(product_id).getProduct_name() : "Unknown";
-        BigDecimal total = price.multiply(BigDecimal.valueOf(quantity));
+        Product product = new ProductDAOImpl().getProductById(product_id);
+        BigDecimal total = product != null ? product.getPrice().multiply(BigDecimal.valueOf(quantity)) : null;
         System.out.printf("| %-18s | %-8d | %-12s | %-12s |\n",
-                productName,
+                product != null ? product.getProduct_name() : "UNKNOWN",
                 quantity,
-                String.format("%,.0f", price),
+                String.format("%,.0f", product != null ? product.getPrice() : null),
                 String.format("%,.0f", total)
         );
     }

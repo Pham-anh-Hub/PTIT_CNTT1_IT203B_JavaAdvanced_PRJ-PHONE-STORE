@@ -11,13 +11,16 @@ import java.util.Scanner;
 public class GuestPresentation {
     public static Scanner sc = new Scanner(System.in);
 
-    public static void GuestPresentationMain(){
+    public static boolean GuestPresentationMain(){
 
         int choice = -1;
         do{
             if (AuthSessionManagement.getInstance().isLoggedIn()) break;
-            System.out.println(
-                    "\n\n\n┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━ SmartPhone Store Management ━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n" +
+            System.out.println("\n\n\n=========================================================================================================================");
+            System.out.println("|                                        HỆ THỐNG BÁN ĐIỆN THOẠI TRỰC TUYẾN                                             |");
+            System.out.println("=========================================================================================================================");
+
+            System.out.println("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━ SmartPhone Store Management ━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n" +
                             "|                                       |                                       |                                       |\n" +
                             "|   1. Xem danh sách sản phẩm           |    2.Xem danh sách danh mục           |       3. Đăng ký                      |\n" +
                             "|                                       |                                       |                                       |\n" +
@@ -56,14 +59,15 @@ public class GuestPresentation {
                 new ProductServiceImpl().searchProductByName();
                 break;
             case 0:
-                System.out.println("=============================================== CẢM ƠN VÀ HẸN GẶP LẠI!! ===============================================");
-                break;
+                System.out.println("=========================================================================================================================");
+                System.out.println("|                                               CẢM ƠN VÀ HẸN GẶP LẠI!!                                                 |");
+                System.out.println("=========================================================================================================================");
+                return false;
             default:
                 break;
 
         }
-
-
         }while(choice != 0);
+        return true;
     }
 }

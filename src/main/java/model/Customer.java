@@ -42,6 +42,6 @@ public class Customer extends User{
     @Override
     public void displayInfo() {
         super.displayInfo();
-        System.out.print("\nTên: " + fullname + "\nSố điện thoại: " + phone + "\nĐịa chỉ: " + address);
+        System.out.print("\n- Tên: " + fullname + "\n- Số điện thoại: " + phone + "\n- Địa chỉ: " + address);
     }
 }

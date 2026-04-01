@@ -126,10 +126,14 @@ public class OrderImpl implements IOrder {
         }
     }
 
-    public List<Order> getDeliveredOrder(){
+    public List<Order> getDeliveredOrder(int targetYear, int targetMonth){
         List<Order> orderDelivered = new ArrayList<>();
         try(Connection conn = MyDatabase.getInstance().getConnection();
-        PreparedStatement pstmt = conn.prepareStatement("select * from orders where status = 'DELIVERED'")){
+        PreparedStatement pstmt = conn.prepareStatement("select * from orders where month(order_date) = ? and year(order_date) = ? and status = 'DELIVERED'")){
+
+            pstmt.setInt(1, targetMonth);
+            pstmt.setInt(2, targetYear);
+
 
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()){
@@ -142,4 +146,5 @@ public class OrderImpl implements IOrder {
         }
         return orderDelivered;
     }
+
 }

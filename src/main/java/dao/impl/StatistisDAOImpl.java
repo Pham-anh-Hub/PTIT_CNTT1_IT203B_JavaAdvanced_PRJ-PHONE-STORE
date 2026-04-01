@@ -16,10 +16,13 @@ public class StatistisDAOImpl implements IStatisticDAO {
 
     // lấy thống kê 5 sản phẩm bán chạy nhất
     @Override
-    public List<BestSellerProduct> getTop5ProductBestSell(){
+    public List<BestSellerProduct> getTop5ProductBestSell(int month, int year){
         List<BestSellerProduct> products = new ArrayList<>();
         try (Connection conn = MyDatabase.getInstance().getConnection();
-             CallableStatement cstmt = conn.prepareCall("call pr_get_top5_bestproduct")){
+             CallableStatement cstmt = conn.prepareCall("call pr_get_top5_bestproduct(?,?)")){
+
+            cstmt.setInt(1, month);
+            cstmt.setInt(2, year);
 
             ResultSet rs = cstmt.executeQuery();
             while (rs.next()){
@@ -40,11 +43,14 @@ public class StatistisDAOImpl implements IStatisticDAO {
     }
 
     // lấy thống kê khách hàng tiềm năng
-    public List<CustomerPotential> getTopPotentialCustomer(){
+    public List<CustomerPotential> getTopPotentialCustomer(int month, int year){
         List<CustomerPotential> customerPotentials = new ArrayList<>();
 
         try(Connection conn = MyDatabase.getInstance().getConnection();
-        CallableStatement cstmt = conn.prepareCall("call pr_get_top3_potential_customer")){
+        CallableStatement cstmt = conn.prepareCall("call pr_get_top3_potential_customer(?,?)")){
+
+            cstmt.setInt(1, month);
+            cstmt.setInt(2, year);
 
             ResultSet rs = cstmt.executeQuery();
             while (rs.next()){
@@ -68,9 +74,12 @@ public class StatistisDAOImpl implements IStatisticDAO {
     }
 
     @Override
-    public BigDecimal getMonthRevenue() {
+    public BigDecimal getMonthRevenue(int targetYear, int targetMonth) {
         try(Connection conn = MyDatabase.getInstance().getConnection();
-            PreparedStatement pstmt = conn.prepareStatement("select sum(total_amount) as total_revenue from orders where month(order_date) = month(now()) and status = 'DELIVERED'")){
+            PreparedStatement pstmt = conn.prepareStatement("select sum(total_amount) as total_revenue from orders where month(order_date) = ? and year(order_date) = ? and status = 'DELIVERED';")){
+
+            pstmt.setInt(1, targetMonth);
+            pstmt.setInt(2, targetYear);
 
             ResultSet rs  = pstmt.executeQuery();
 

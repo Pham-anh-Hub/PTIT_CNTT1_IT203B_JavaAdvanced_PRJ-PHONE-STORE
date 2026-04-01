@@ -71,8 +71,8 @@ public class BestSellerProduct {
                 CenterFormat.center(product_id, 12),
                 CenterFormat.center(product_name, 20),
                 CenterFormat.center(brand, 10),
-                CenterFormat.center(String.valueOf(total_quantity), 15),
-                CenterFormat.center(nf.format(total_revenue) + " VND", 10)
+                CenterFormat.center(String.valueOf(total_quantity), 17),
+                CenterFormat.center(nf.format(total_revenue) + " VND ", 12)
         );
     }
 }

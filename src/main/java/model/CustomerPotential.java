@@ -75,12 +75,12 @@ public class CustomerPotential {
     public void displayInfo(){
         NumberFormat nf = NumberFormat.getNumberInstance();
         System.out.printf("| %s | %s | %s | %s | %s | %s |\n",
-                CenterFormat.center(username, 12),
+                CenterFormat.center(username, 13),
                 CenterFormat.center(fullname, 20),
-                CenterFormat.center(email, 10),
+                CenterFormat.center(email, 13),
                 CenterFormat.center(phone, 15),
-                CenterFormat.center(String.valueOf(total_orders), 10),
-                CenterFormat.center(nf.format(total_paid) + " VND", 12)
+                CenterFormat.center(String.valueOf(total_orders), 13),
+                CenterFormat.center(nf.format(total_paid) + " VND", 13)
         );
     }
 }

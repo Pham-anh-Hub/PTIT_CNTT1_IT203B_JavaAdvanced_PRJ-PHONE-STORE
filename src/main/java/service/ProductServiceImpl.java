@@ -6,6 +6,7 @@ import dao.impl.ProductDAOImpl;
 import model.Category;
 import model.Product;
 import model.User;
+import presentation.ProductManagement;
 import service.serviceInterface.IProductService;
 import utils.AuthSessionManagement;
 import utils.CenterFormat;
@@ -32,8 +33,7 @@ public class ProductServiceImpl implements IProductService {
         System.out.println("┣" + "━".repeat(staticWidth) + "┫");
 
         if (products.isEmpty()) {
-            System.out.printf("| %s |\n", CenterFormat.center("DANH SÁCH SẢN PHẨM TRỐNG", staticWidth));
-            System.out.println("┗" + "━".repeat(staticWidth) + "┛");
+            System.out.printf("| %s |\n", CenterFormat.center("DANH SÁCH SẢN PHẨM TRỐNG", staticWidth-2));
             return; // thoát sớm, không in tiếp
         }
         if (isAdmin){
@@ -86,7 +86,10 @@ public class ProductServiceImpl implements IProductService {
                 product.displayInfoProduct();
             }
 
-            System.out.print("┗" + "━".repeat(staticWidth) + "┛\n");
+            if(!products.isEmpty()){
+                System.out.print("┗" + "━".repeat(staticWidth) + "┛\n");
+            }
+
 
             StringBuilder pagination = new StringBuilder();
 
@@ -452,7 +455,7 @@ public class ProductServiceImpl implements IProductService {
         String keyword = sc.nextLine().trim();
 
         if (keyword.isEmpty()) {
-            System.out.println("Từ khóa cần tìm không được để trống.");
+            System.err.println("Từ khóa cần tìm không được để trống.");
             return;
         }
 
@@ -482,5 +485,9 @@ public class ProductServiceImpl implements IProductService {
         displayProductList(new ProductDAOImpl().getProducts(), "order by price " + sortChoice);
     }
 
+    public static void main(String[] args) {
+        new ProductServiceImpl().searchProductByName();
+
+    }
 
 }

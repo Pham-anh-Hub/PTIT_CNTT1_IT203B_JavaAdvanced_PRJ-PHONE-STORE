@@ -9,7 +9,10 @@ public class MainProgramFlow {
 
         do {
             if(newSessionManagement.getCurrentUser() == null){
-                GuestPresentation.GuestPresentationMain();
+                boolean isRunning = GuestPresentation.GuestPresentationMain();
+                if (!isRunning) {
+                    break;
+                }
             } else if (newSessionManagement.isAdmin()) {
                 // Hiển thị menu quản lý cho admin
                 AdminPresentation.AdminPresentationMain();

@@ -39,6 +39,12 @@ public class OrderServiceImpl implements IOrderService {
                 CenterFormat.center("Trạng thái", 12),
                 CenterFormat.center("Thời gian tạo", 22));
         System.out.println("|" + "━".repeat(97) + "|");
+        if (orders.isEmpty()){
+            System.out.println("|                                                                                                 |");
+            System.out.println("|                                     Danh sánh đơn hàng trống                                    |");
+            System.out.println("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+            return;
+        }
 
         for (Order o : orders) {
             // Đếm tổng số lượng sản phẩm trong đơn
@@ -62,7 +68,9 @@ public class OrderServiceImpl implements IOrderService {
         List<Order> customerOrders = new OrderImpl().getOrdersByUserId(getCurrentUserId());
 
         if(customerOrders.isEmpty()){
-            System.out.println("Danh sánh đơn hàng trống.");
+            System.out.println("|                                                                                                 |");
+            System.out.println("|                                     Danh sánh đơn hàng trống                                    |");
+            System.out.println("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
             return;
         }
 
@@ -114,23 +122,20 @@ public class OrderServiceImpl implements IOrderService {
         // Lấy chi tiết đơn từ DB
         List<OrderDetail> details = new OrderDetailDAOImpl().getOrderDetailsByOrderId(orderId);
 
-        System.out.println("┏" + "━".repeat(75) + "┓");
-        System.out.printf("| %-73s |\n", " Mã đơn: " + orderId
-                + "  |  Trạng thái: " + order.getStatus()
-                + "  |  Tổng: " + String.format("%,.0f VND", order.getTotal_amount()));
-        System.out.println("|" + "━".repeat(75) + "|");
-        System.out.printf("| %-12s | %-25s | %8s | %15s |\n",
-                "Mã SP", "Tên sản phẩm", "SL", "Thành tiền");
-        System.out.println("|" + "━".repeat(75) + "|");
+        System.out.println("┏" + "━".repeat(79) + "┓");
+        System.out.printf("| %-73s |\n", " Mã đơn: " + orderId + "  |  Trạng thái: " + order.getStatus() + "  |  Tổng: " + String.format("%,.0f VND", order.getTotal_amount()));
+        System.out.println("|" + "━".repeat(79) + "|");
+        System.out.printf("| %-16s | %-25s | %8s | %15s |\n", "Mã SP", "Tên sản phẩm", "SL", "Thành tiền");
+        System.out.println("|" + "━".repeat(79) + "|");
 
         for (OrderDetail d : details) {
             Product p = new ProductDAOImpl().getProductById(d.getProduct_id());
             String productName = p != null ? p.getProduct_name() : "_";
-            System.out.printf("| %-12s | %-25s | %8d | %15s |\n",
+            System.out.printf("| %-16s | %-25s | %8d | %15s |\n",
                     d.getProduct_id(),
                     productName,
                     d.getQuantity(),
-                    String.format("%,.0f VND", d.getPrice()));
+                    String.format("%,.0f VND", new ProductDAOImpl().getProductById(d.getProduct_id()).getPrice()));
         }
 
         System.out.println("┗" + "━".repeat(75) + "┛");
@@ -314,12 +319,10 @@ public class OrderServiceImpl implements IOrderService {
 
 
         if (cartItems.isEmpty()) {
-            System.out.println("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
-            System.out.println("|                                            |");
-            System.out.println("|            Giỏ hàng trống                  |");
-            System.out.println("|                                            |");
-            System.out.println("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
-
+            System.out.println("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+            System.out.println("|                                                                                                 |");
+            System.out.println("|                                     Danh sánh đơn hàng trống                                    |");
+            System.out.println("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
             return;
         }
 
@@ -333,7 +336,7 @@ public class OrderServiceImpl implements IOrderService {
 
             if (input.equalsIgnoreCase("y")) {
                 if (selectedItems.isEmpty()) {
-                    System.out.println("Bạn chưa chọn sản phẩm nào! Xác nhận thoát (y/n): ");
+                    System.out.println("Bạn chưa chọn sản phẩm nào!\n\t\t Xác nhận thoát (y/n): ");
                     if (sc.nextLine().trim().equalsIgnoreCase("y")) break;
                     continue;
                 }
@@ -361,15 +364,19 @@ public class OrderServiceImpl implements IOrderService {
             // Nhập số lượng
             Product p = new ProductDAOImpl().getProductById(found.getProduct_id());
             int selectQuantity = 0;
+            int inputQuantity = 0;
+            int finalQuantity = 0;
             while (true) {
-                System.out.print("Số lượng muốn mua: ");
+                System.out.print("Số lượng muốn mua (Giỏ hàng đang có " + found.getQuantity() + "): " );
                 try {
-                    selectQuantity = Integer.parseInt(sc.nextLine().trim());
-                    if (selectQuantity <= 0) {
+                     inputQuantity = Integer.parseInt(sc.nextLine().trim());
+                     finalQuantity = found.getQuantity() + inputQuantity;
+                    if (inputQuantity <= 0) {
                         System.out.println("Số lượng phải lớn hơn 0.");
-                    } else if (selectQuantity > p.getStock()) {
-                        System.out.println("Số lượng vượt quá tồn kho (" + p.getStock() + ").");
+                    } else if (finalQuantity > p.getStock()) {
+                        System.out.println("Tổng số lượng vượt quá tồn kho (" + p.getStock() + ").");
                     } else {
+                        selectQuantity = finalQuantity;
                         break;
                     }
                 } catch (NumberFormatException e) {
@@ -381,6 +388,7 @@ public class OrderServiceImpl implements IOrderService {
             Cart selectedItem = new Cart();
             selectedItem.setProduct_id(found.getProduct_id());
             selectedItem.setQuantity(selectQuantity);
+
             selectedItems.add(selectedItem);
 
             System.out.println("Đã chọn: " + selectQuantity + " x "+ p.getProduct_name() + " = " + String.format("%,.0f VND", p.getPrice().multiply(BigDecimal.valueOf(selectQuantity))));
@@ -491,6 +499,39 @@ public class OrderServiceImpl implements IOrderService {
         }
 
 
+    }
+
+    public void cancelOrder(){
+        displayAllOrders(new OrderImpl().getAllOrders());
+
+        System.out.print("Nhập mã đơn hàng muốn hủy: ");
+        String orderId = sc.nextLine().trim();
+
+        Order order = new OrderImpl().getOrderById(orderId);
+        if (order == null) {
+            System.out.println("Đơn hàng không tồn tại.");
+            return;
+        }
+
+        // Không cho cập nhật đơn đã DELIVERED hoặc CANCELLED
+        if (order.getStatus().equals("DELIVERED") || order.getStatus().equals("CANCELLED")) {
+            System.out.println("Đơn hàng đã hoàn thành rồi.");
+        }else if (order.getStatus().equals("SHIPPING")){
+            System.out.println("Đơn hàng đã được chuyển đi, không thể hủy đơn hàng");
+        }else{
+            order.printOrder();
+            System.out.print("Xác nhận hủy đơn hàng này(y/n): ");
+            String choice = sc.nextLine();
+            if(choice.equalsIgnoreCase("y")){
+                if (new OrderImpl().updateOrderStatus(order.getOrder_id(), "CANCELLED")){
+                    System.out.println("Đã hủy đơn hàng");
+                }else{
+                    System.out.println("Hủy đơn hàng thất bại");
+                }
+            }else {
+                System.out.println("Hủy thao tác hủy đơn");
+            }
+        }
     }
 
 }

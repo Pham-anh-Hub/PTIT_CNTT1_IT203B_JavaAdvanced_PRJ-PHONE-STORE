@@ -80,7 +80,9 @@ public class CategoryServiceImpl implements ICategoryService {
         }else{
             boolean updateStatus = false;
             System.out.println("Sản phẩm cần cập nhật: ");
+            System.out.println("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
             udTarget.displayInforCate();
+            System.out.println("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
             System.out.print("Cập nhật:\n" +
                     "1. Tên danh mục\n" +
                     "2. Mô tả\n" +
@@ -163,11 +165,10 @@ public class CategoryServiceImpl implements ICategoryService {
 
     }
 
-//        public static void main(String[] args) {
-//            displayListCategory();
-//            deleteCategory();
-//            displayListCategory();
-//        }
+
+        public static void main(String[] args) {
+            new CategoryServiceImpl().updateCategory();
+        }
 
     // Kiểm tra danh mục tồn tại hay chưa
     public boolean cateExisted(String cateName){
@@ -178,4 +179,7 @@ public class CategoryServiceImpl implements ICategoryService {
         }
         return false;
     }
+
+
+
 }

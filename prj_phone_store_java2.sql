@@ -205,6 +205,7 @@ select * from users;
 select * from orders;
 
 
-select sum(total_amount) from orders where month(order_date) = month(now()) and status = 'DELIVERED'; 
+select sum(total_amount) as total_revenue from orders where month(order_date) = month(now()) and status = 'DELIVERED';
 
 
+select * from orders where status = 'DELIVERED';

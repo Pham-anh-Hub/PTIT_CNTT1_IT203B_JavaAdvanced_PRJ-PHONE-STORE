@@ -10,12 +10,12 @@ import java.util.List;
 
 public interface IStatisticDAO {
     // lấy thống kê 5 sản phẩm bán chạy nhất
-    public List<BestSellerProduct> getTop5ProductBestSell();
+    public List<BestSellerProduct> getTop5ProductBestSell(int month, int year);
 
     // lấy thống kê khách hàng tiềm năng
-    public List<CustomerPotential> getTopPotentialCustomer();
+    public List<CustomerPotential> getTopPotentialCustomer(int month, int year);
 
     // thống kê doanh thu
-    public BigDecimal getMonthRevenue();
+    public BigDecimal getMonthRevenue(int year, int month);
 
 }

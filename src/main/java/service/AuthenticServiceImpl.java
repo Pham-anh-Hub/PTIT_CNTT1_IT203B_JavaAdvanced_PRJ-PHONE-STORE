@@ -25,14 +25,15 @@ public class AuthenticServiceImpl implements IAuthenticService{
 
         if (user == null || !BCrypt.checkpw(password, user.getPassword())) {
             System.out.println("Tên đăng nhập hoặc mật khẩu chưa đúng.");
-            System.out.println("Bạn chưa có tài khoản? " + ("\u001B[33m" + "Đăng ký" + "\u001B[0m"));
+            System.out.println("Bạn chưa có tài khoản? " + ("\u001B[33m" + "3. Đăng ký" + "\u001B[0m"));
             return;
         }
 
         AuthSessionManagement.getInstance().login(user);
-        System.out.println("\n\n=========================================================================================");
-        System.out.println("Đăng nhập thành công! Xin chào, " + (user.getRole().equalsIgnoreCase("admin") ? "Quản trị viên" : "Khách hàng") + " " + user.getUsername());
-        System.out.println("=========================================================================================");
+        System.out.println("\n\n=========================================================================================================================");
+        System.out.println("\t".repeat(7) + "Đăng nhập thành công! Xin chào, " + "\u001B[32m" + (user.getRole().equalsIgnoreCase("admin") ? "Quản trị viên" : "Khách hàng") + " " + user.getUsername() + "\u001B[0m");
+        System.out.println("=========================================================================================================================");
+
     }
 
 
@@ -65,9 +66,9 @@ public class AuthenticServiceImpl implements IAuthenticService{
             System.out.print("Email: ");
             String email = sc.nextLine().trim();
             if (!email.matches("^[\\w.-]+@[\\w.-]+\\.[a-z]{2,}$")) {
-                System.out.println("[!] Email không đúng định dạng.");
+                System.out.println("Email không đúng định dạng.");
             } else if (new UserDAOImpl().existsByEmail(email)) {
-                System.out.println("[!] Email đã được sử dụng.");
+                System.out.println("Email đã được sử dụng.");
             } else {
                 newCustomer.setEmail(email);
                 break;
@@ -98,7 +99,7 @@ public class AuthenticServiceImpl implements IAuthenticService{
             boolean phoneExisted = false;
 
             if (!phone.matches("^(0[389])+([0-9]{8})$")) {
-                System.out.println("Số điện thoại không hợp lệ (VD: 0912345678).");
+                System.out.println("Số điện thoại không hợp lệ (VD: 0987654321).");
             } else {
                 for (User u : new AdminDAOImpl().getUsers()){
                     if(u instanceof Customer){

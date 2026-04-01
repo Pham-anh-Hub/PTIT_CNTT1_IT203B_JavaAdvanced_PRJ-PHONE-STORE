@@ -60,6 +60,6 @@ public class AdminPresentation {
                     break;
             }
 
-        }while (choice != 6);
+        }while (choice != 0);
     }
 }

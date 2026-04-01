@@ -10,20 +10,20 @@ public class CustomerManagement {
     public void customerManagement(){
         int choice = -1;
         do {
-            System.out.println("\n\n\n┏━━━━━━━━━━━━━━━━━━━━━━━━━━ QUẢN LÝ KHÁCH HÀNG ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n" +
+                System.out.println("\n\n\n┏━━━━━━━━━━━━━━━━━━━━━━━━━━ QUẢN LÝ KHÁCH HÀNG ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n" +
                     "|                                        |                                       |\n" +
                     "|        1. Xem danh sách khách hàng     |    2. Tìm kiếm khách hàng             |\n" +
                     "|                                        |                                       |\n" +
                     "|━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━|\n" +
                     "|                                        |                                       |\n" +
-                    "|        3. Khóa/Mở khóa khách hàng      |       5. Quay lại                     |\n" +
+                    "|        3. Khóa/Mở khóa khách hàng      |     4. Quay lại                       |\n" +
                     "|                                        |                                       |\n" +
                     "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┻━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
             System.out.print("Lựa chọn của bạn:  ");
             try {
                 choice = Integer.parseInt(sc.nextLine().trim());
             } catch (NumberFormatException e) {
-                System.out.println("Lựa chọn không hợp lệ.");
+                System.err.println("Lựa chọn không hợp lệ.");
                 continue;
             }
 
@@ -49,6 +49,8 @@ public class CustomerManagement {
                         }
                     } catch (NumberFormatException e) {
                         System.err.println("Lựa chọn không hợp lệ\n" + e.toString());
+                    }finally {
+                        sc.nextLine();
                     }
                 case 4:
                     break;
@@ -58,6 +60,5 @@ public class CustomerManagement {
             }
         }while (choice != 4);
     }
-
 
 }

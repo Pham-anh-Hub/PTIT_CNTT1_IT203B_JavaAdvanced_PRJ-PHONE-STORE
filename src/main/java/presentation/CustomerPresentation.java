@@ -12,15 +12,15 @@ public class CustomerPresentation {
     public static void CustomerPresentationMain() {
         int choice = -1;
         while (AuthSessionManagement.getInstance().isLoggedIn()){
-
-            System.out.println("\n┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━ CUSTOMER MENU ━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
-            System.out.println("|                                       |                                       |                                       |");
-            System.out.println("|                                       |                                       |                                       |");
-            System.out.println("|   1. Xem & mua sản phẩm               |   2. Tìm kiếm sản phẩm                |   3. Danh sách danh mục               |");
-            System.out.println("|                                       |                                       |                                       |");
+            System.out.println("\n\n┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+            System.out.println("|                                                     CUSTOMER MENU                                                     |");
+            System.out.println("┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫");
+            System.out.println("|                            |                              |                              |                            |");
+            System.out.println("|   1. Xem & mua sản phẩm    |    2. Tìm kiếm sản phẩm      |   3. Danh sách danh mục      |   4. Hủy đơn hàng          |");
+            System.out.println("|                            |                              |                              |                            |");
             System.out.println("┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫");
             System.out.println("|                            |                              |                              |                            |");
-            System.out.println("|   4. Giỏ hàng & đặt hàng   |   5. Xem đơn hàng            |   6. Cập nhật hồ sơ          |    0. Đăng xuất            |");
+            System.out.println("|   5. Giỏ hàng & đặt hàng   |   6. Xem đơn hàng            |  7. Cập nhật hồ sơ           |    0. Đăng xuất            |");
             System.out.println("|                            |                              |                              |                            |");
             System.out.println("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┻━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┻━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┻━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");;
 
@@ -43,13 +43,16 @@ public class CustomerPresentation {
                     new CategoryServiceImpl().displayListCategory();
                     break;
                 case 4:
-                    new CartManagement().cartMenu();
+                    new OrderServiceImpl().cancelOrder();
                     break;
                 case 5:
+                    new CartManagement().cartMenu();
+                    break;
+                case 6:
                     // lịch sử đơn
                     new OrderServiceImpl().displayDetailOrders();
                     break;
-                case 6:
+                case 7:
                     new AuthenticServiceImpl().updateProfile();
                     break;
                 case 0:

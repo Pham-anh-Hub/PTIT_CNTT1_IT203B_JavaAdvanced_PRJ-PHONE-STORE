@@ -69,6 +69,6 @@ public abstract class User {
     }
 
     public void displayInfo() {
-        System.out.print("Mã người dùng: " + id + "\nTên người dùng: " + username + "\nEmail: " + email + "\nMật khẩu: " + (password.substring(0, 4) + password.substring(0, 4) + "*".repeat(password.length() - 4)) + "\nVai trò: " + role);
+        System.out.print("- Mã người dùng: " + id + "\n- Tên người dùng: " + username + "\n- Email: " + email + "\n- Mật khẩu: " + (password.substring(0, 4) + password.substring(0, 4) + "*".repeat(password.length() - 4)) + "\n- Vai trò: " + role);
     }
 }
